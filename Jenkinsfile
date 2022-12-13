@@ -1,8 +1,8 @@
 pipeline {
 	agent {
-		docker {
+		dockerfile {
 			label 'docker'
-			image 'python:3'
+			// image 'python:3'
 		}
 	}
 	stages {
@@ -18,8 +18,17 @@ pipeline {
 		}
 		stage('Unit test') {
 			steps {
-				sh 'python3 -m unittest subtractor.py'
+				sh '''python3 -m pytest \
+					-v --junitxml=junit.xml \
+					--cov-report xml --cov subtractor subtractor.py
+				'''
 			}
+		}
+	}
+	post {
+		always {
+			junit 'junit.xml'
+			cobertura coberturaReportFile: 'coverage.xml'
 		}
 	}
 }
